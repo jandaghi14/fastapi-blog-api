@@ -1,5 +1,6 @@
 from pydantic import BaseModel, ConfigDict
 from datetime import datetime
+from typing import Optional
 
 
 class PostBase(BaseModel):
@@ -17,3 +18,9 @@ class PostResponse(PostBase):
 
 class PostCreate(PostBase):
     pass
+
+
+class PostUpdate(BaseModel):
+    title: Optional[str] = None
+    content: Optional[str] = None
+    is_published: Optional[bool] = None
