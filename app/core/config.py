@@ -6,6 +6,7 @@ class Settings(BaseSettings):
 
     class Config:
         env_file = ".env"
+        extra = 'ignore'
 
 
 settings = Settings()
@@ -18,6 +19,7 @@ class Settings_JWT(BaseSettings):
 
     class Config:
         env_file = ".env"
+        extra = 'ignore'
 
 
 settings_jwt = Settings_JWT()
