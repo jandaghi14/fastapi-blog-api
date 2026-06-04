@@ -1,15 +1,16 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
+
 from app.repositories.user_repository import UserRepository
 from app.core import security
-from app.schemas import user
+from app.schemas import scheme_user
 from app.core.jwt import Token
 
 
 class UserService:
 
     async def user_register(self,
-                            data: user.UserRegister,
+                            data: scheme_user.UserRegister,
                             session: AsyncSession):
 
         user_repository = UserRepository()
@@ -27,12 +28,15 @@ class UserService:
                          plain_password,
                          session: AsyncSession):
         user_repository = UserRepository()
+
         result = await user_repository.get_by_username(username, session)
+
         if result is not None:
             if security.verify_password(plain_password, result.password):
                 token = Token().create_access_token(result)
                 return token
-            return False
+            else:
+                return False
 
         else:
-            return False
+            return None

@@ -1,14 +1,14 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update
 from typing import Optional
-from app.models.post import Post
+from app.models.model_post import Post
 from app.repositories.base_repository import BaseRepository
-from app.schemas import post
+from app.schemas import scheme_post
 
 
 class PostRepository(BaseRepository):
     async def create(self,
-                     data: post.PostCreate,
+                     data: scheme_post.PostCreate,
                      owner_id: int,
                      session: AsyncSession,
                      ):
@@ -33,7 +33,7 @@ class PostRepository(BaseRepository):
     async def update(self,
                      post_id: int,
                      session: AsyncSession,
-                     data: post.PostUpdate
+                     data: scheme_post.PostUpdate
                      ):
         await session.execute(update(Post)
                               .where(Post.id == post_id)

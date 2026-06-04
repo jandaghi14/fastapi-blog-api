@@ -1,14 +1,14 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update
-from app.models.user import User
+from app.models.model_user import User
 from app.repositories.base_repository import BaseRepository
-from app.schemas import user
+from app.schemas import scheme_user
 
 
 class UserRepository(BaseRepository):
 
     async def create(self,
-                     data: user.UserRegister,
+                     data: scheme_user.UserRegister,
                      session: AsyncSession
                      ):
         new_user = User(**data.model_dump())
@@ -30,7 +30,7 @@ class UserRepository(BaseRepository):
     async def update(self,
                      id: int,
                      session: AsyncSession,
-                     data: user.UserUpdate
+                     data: scheme_user.UserUpdate
                      ):
         await session.execute(
             update(User)
