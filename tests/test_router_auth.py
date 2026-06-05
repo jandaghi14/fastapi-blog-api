@@ -1,6 +1,4 @@
 import uuid
-
-
 from httpx import AsyncClient
 
 
@@ -15,8 +13,7 @@ async def test_user_register_endpoint_success(client: AsyncClient):
                                        })
 
     assert response.status_code == 200
-    assert response.json()[
-        'message'] == f"Username '{username}' registered successfully!"
+    assert response.json()['username'] == username
 
 
 async def test_user_register_endpoint_already_exist_user(client: AsyncClient):

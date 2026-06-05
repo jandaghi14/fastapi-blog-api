@@ -20,8 +20,8 @@ class UserService:
         else:
             hashed_password = security.hash_password(data.password)
             data.password = hashed_password
-            await user_repository.create(data, session)
-            return True
+            new_made_user = await user_repository.create(data, session)
+            return new_made_user
 
     async def user_login(self,
                          username,

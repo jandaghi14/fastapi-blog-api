@@ -20,14 +20,22 @@ class PostRepository(BaseRepository):
 
     async def get_by_id(self,
                         post_id: int,
+                        user_id: int,
                         session: AsyncSession,
                         ):
-        result = await session.execute(select(Post).where(Post.id == post_id))
+        result = await session.execute(select(Post).where(Post.id == post_id).where(Post.owner_id == user_id))
         return result.scalars().first()
 
     async def get_all(self,
                       session: AsyncSession):
         result = await session.execute(select(Post))
+        return result.scalars().all()
+
+    async def get_all_posts_of_the_user(self,
+                                        user_id: int,
+                                        session: AsyncSession):
+
+        result = await session.execute(select(Post).where(Post.owner_id == user_id))
         return result.scalars().all()
 
     async def update(self,
@@ -54,19 +62,19 @@ class PostRepository(BaseRepository):
             return False
 
     async def search(self,
+                     user_id: int,
                      session: AsyncSession,
                      title: Optional[str] = None,
                      is_published: Optional[bool] = None,
-                     owner_id: Optional[int] = None,
                      ):
         query = select(Post)
 
         if title:
-            query = query.where(Post.title.ilike(f"%{title}%"))
+            query = query.where(Post.title.ilike(f"%{title}%")).where(
+                Post.owner_id == user_id)
         if is_published is not None:
-            query = query.where(Post.is_published == is_published)
-        if owner_id:
-            query = query.where(Post.owner_id == owner_id)
+            query = query.where(Post.is_published == is_published).where(
+                Post.owner_id == user_id)
 
         result = await session.execute(query)
         return result.scalars().all()
