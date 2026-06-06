@@ -50,14 +50,14 @@ async def test_post_get_post_by_id_endpoint_not_found(client: AsyncClient, auth_
     assert response.json()['detail'] == "The post does not exist for the user"
 
 
-async def test_post_get_post_by_id_endpoint_invalid_user(client: AsyncClient, auth_header, create_post):
+async def test_post_get_post_by_id_endpoint_not_owner_user(client: AsyncClient, auth_header, create_post):
     header = await auth_header()
     post1 = await create_post(header=header)
 
     header2 = await auth_header()
     response = await client.get(f'/post/get_post_by_id/{post1.json()['id']}', headers=header2)
-    assert response.status_code == 404
-    assert response.json()['detail'] == "The post does not exist for the user"
+    assert response.status_code == 200
+    assert response.json()['owner_id'] == post1.json()['owner_id']
 
 
 async def test_post_search_endpoint(client: AsyncClient, auth_header, create_post):

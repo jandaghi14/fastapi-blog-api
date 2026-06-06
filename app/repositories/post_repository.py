@@ -20,10 +20,9 @@ class PostRepository(BaseRepository):
 
     async def get_by_id(self,
                         post_id: int,
-                        user_id: int,
                         session: AsyncSession,
                         ):
-        result = await session.execute(select(Post).where(Post.id == post_id).where(Post.owner_id == user_id))
+        result = await session.execute(select(Post).where(Post.id == post_id))
         return result.scalars().first()
 
     async def get_all(self,
@@ -62,7 +61,7 @@ class PostRepository(BaseRepository):
             return False
 
     async def search(self,
-                     user_id: int,
+
                      session: AsyncSession,
                      title: Optional[str] = None,
                      is_published: Optional[bool] = None,
@@ -70,11 +69,9 @@ class PostRepository(BaseRepository):
         query = select(Post)
 
         if title:
-            query = query.where(Post.title.ilike(f"%{title}%")).where(
-                Post.owner_id == user_id)
+            query = query.where(Post.title.ilike(f"%{title}%"))
         if is_published is not None:
-            query = query.where(Post.is_published == is_published).where(
-                Post.owner_id == user_id)
+            query = query.where(Post.is_published == is_published)
 
         result = await session.execute(query)
         return result.scalars().all()

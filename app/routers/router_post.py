@@ -57,9 +57,13 @@ async def update_post_endpoint(post_id: int,
     result = await PostService().update_post(post_id, new_post, current_user, session)
     if result:
         return {"message": f"Post with ID '{post_id}' updated successfully!"}
-    else:
+    elif result is None:
         raise HTTPException(
             status_code=404, detail=f"Post with ID {post_id} for User '{current_user.username}' does not exists")
+    elif result == False:
+        raise HTTPException(
+            status_code=401, detail=f"Post with ID {post_id} does not belong to User '{current_user.username}' "
+        )
 
 
 @router_post.delete('/delete_post/{post_id}')
@@ -71,6 +75,10 @@ async def delete_post_endpoint(post_id: int,
 
     if result:
         return {"message": f"Post with ID '{post_id}' deleted successfully!"}
-    else:
+    elif result is None:
         raise HTTPException(
             status_code=404, detail=f"Post with ID {post_id} for User '{current_user.username}' does not exists")
+    elif result == False:
+        raise HTTPException(
+            status_code=401, detail=f"Post with ID {post_id} does not belong to User '{current_user.username}' "
+        )

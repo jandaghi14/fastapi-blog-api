@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
-
+from sqlalchemy import text
 import uuid
 import pytest_asyncio
 from httpx import AsyncClient, ASGITransport
@@ -47,6 +47,14 @@ async def client():
         yield ac
 
     app.dependency_overrides = {}
+
+
+@pytest_asyncio.fixture(autouse=True)
+async def clear_tables():
+    yield
+    async with engine.begin() as conn:
+        await conn.execute(text("TRUNCATE TABLE posts, users, comments RESTART IDENTITY CASCADE"))
+
 # =========================================================================================
 
 
@@ -95,7 +103,7 @@ async def auth_header(get_token):
 # =========================================================================================
 
 
-@pytest_asyncio.fixture
+@pytest_asyncio.fixture()
 async def create_post(client):
     async def _create_post(header, title=None, content=None, is_published=None):
         if title is None:
@@ -112,6 +120,24 @@ async def create_post(client):
                                      'is_published': is_published
                                  }, headers=header)
     return _create_post
+
+
+@pytest_asyncio.fixture()
+async def create_comment(client):
+    async def _create_comment(header, post_id, content=None, is_published=None):
+        if content is None:
+            content = f"comment_content_{uuid.uuid4().hex[:6]}"
+        if is_published is None:
+            is_published = True
+
+        return await client.post('/comment/create_comment',
+                                 json={
+                                     'post_id': post_id,
+                                     'content': content,
+                                     'is_published': is_published
+                                 }, headers=header)
+    return _create_comment
+
 
 # =========================================================================================
 
