@@ -5,12 +5,10 @@ import pytest_asyncio
 from httpx import AsyncClient, ASGITransport
 from app.core.config import settings
 from app.db.base import Base
-from app.db import all_models
+
 from app.main import app
 from app.db.session import get_db
-# echo=True on the engine during development.
-# It prints every SQL query SQLAlchemy generates to the terminal.
-# Invaluable for debugging async queries.
+
 engine = create_async_engine(settings.TEST_DATABASE_URL, echo=True)
 LocalSession = async_sessionmaker(engine)
 
@@ -53,7 +51,7 @@ async def client():
 async def clear_tables():
     yield
     async with engine.begin() as conn:
-        await conn.execute(text("TRUNCATE TABLE posts, users, comments RESTART IDENTITY CASCADE"))
+        await conn.execute(text("TRUNCATE TABLE posts, users, comments, posts_tags, tags RESTART IDENTITY CASCADE"))
 
 # =========================================================================================
 
@@ -138,6 +136,15 @@ async def create_comment(client):
                                  }, headers=header)
     return _create_comment
 
+
+@pytest_asyncio.fixture()
+async def create_tag(client):
+    async def _create_tag(header, name=None):
+        if name is None:
+            name = f"tag_name_{uuid.uuid4().hex[:6]}"
+
+        return await client.post('/tag/create_tag', params={'name': name}, headers=header)
+    return _create_tag
 
 # =========================================================================================
 

@@ -28,7 +28,7 @@ async def get_all(
     return await TagService().get_all(session)
 
 
-@router_tag.get('/get_by_id')
+@router_tag.get('/get_by_id/{tag_id}')
 async def get_by_id(tag_id: int,
                     current_user: User = Depends(get_current_user),
                     session: AsyncSession = Depends(get_db)):
@@ -48,12 +48,12 @@ async def update(tag_id: int,
     result = await TagService().update(tag_id=tag_id, new_tag=new_tag, session=session)
     if result is None:
         raise HTTPException(
-            status_code=404, detail=f"Tag with name '{tag_id}' not found.")
+            status_code=404, detail=f"Tag with ID '{tag_id}' not found.")
     else:
         return result
 
 
-@router_tag.delete('/delete')
+@router_tag.delete('/delete/{tag_id}')
 async def delete(tag_id: int,
                  current_user: User = Depends(get_current_user),
                  session: AsyncSession = Depends(get_db)):
@@ -73,7 +73,7 @@ async def assign_tag_to_post(tag_id: int,
     result = await TagService().assign_tag_to_post(tag_id=tag_id, post_id=post_id, session=session)
     if result is False:
         raise HTTPException(
-            status_code=404, detail=f"Either tag or id does not exist.")
+            status_code=404, detail="Either tag or id does not exist.")
     if result is None:
         raise HTTPException(
             status_code=400, detail=f"Tag '{tag_id}' with Post '{post_id}' already exists.")
