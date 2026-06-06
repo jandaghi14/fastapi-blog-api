@@ -1,5 +1,6 @@
 from app.db.base import Base
 from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, DateTime
+from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
 
@@ -14,3 +15,4 @@ class Post(Base):
     is_published = Column(Boolean, nullable=False, default=True)
     owner_id = Column(Integer, ForeignKey('users.id'),
                       nullable=False)
+    tags = relationship('Tag', secondary='posts_tags', back_populates="posts")
