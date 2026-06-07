@@ -58,3 +58,10 @@ class UserRepository(BaseRepository):
                               ):
         result = await session.execute(select(User).where(User.username == username))
         return result.scalars().first()
+
+    async def promote_user(self,
+                           user,
+                           session: AsyncSession):
+        user.role = "admin"
+        await session.commit()
+        return True

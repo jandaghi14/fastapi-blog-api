@@ -138,7 +138,7 @@ async def test_post_search_endpoint_no_matching(client: AsyncClient, auth_header
     assert response.json() == []
 
 
-async def test_post_update_success(client: AsyncClient, auth_header, create_post):
+async def test_post_update_success_owner(client: AsyncClient, auth_header, create_post):
     header = await auth_header()
     title = f"post_title_{uuid.uuid4().hex[:6]}"
     content = f"post_content_{uuid.uuid4().hex[:6]}"
@@ -157,6 +157,54 @@ async def test_post_update_success(client: AsyncClient, auth_header, create_post
         'message'] == f"Post with ID '{post1.json()['id']}' updated successfully!"
 
 
+async def test_post_update_success_admin(client: AsyncClient, auth_header, create_post, admin_auth_header):
+    header = await auth_header()
+    title = f"post_title_{uuid.uuid4().hex[:6]}"
+    content = f"post_content_{uuid.uuid4().hex[:6]}"
+    is_published = True
+    post1 = await create_post(title=title, content=content, is_published=is_published, header=header)
+
+    header_admin = await admin_auth_header()
+
+    response = await client.put(f'/post/update_post/{post1.json()['id']}',
+                                json={
+        'title': "updated_title",
+        'content': "updated_content",
+        'is_published': False},
+        headers=header_admin)
+
+    assert response.status_code == 200
+    assert response.json()[
+        'message'] == f"Post with ID '{post1.json()['id']}' updated successfully!"
+
+    response = await client.get(f'/post/get_post_by_id/{post1.json()['id']}', headers=header)
+    assert response.status_code == 200
+    assert response.json()['title'] == "updated_title"
+    assert response.json()['content'] == "updated_content"
+    assert response.json()['is_published'] == False
+
+
+async def test_post_update_invalid_user(client: AsyncClient, auth_header, create_post):
+    header = await auth_header()
+    title = f"post_title_{uuid.uuid4().hex[:6]}"
+    content = f"post_content_{uuid.uuid4().hex[:6]}"
+    is_published = True
+    post1 = await create_post(title=title, content=content, is_published=is_published, header=header)
+
+    header2 = await auth_header()
+
+    response = await client.put(f'/post/update_post/{post1.json()['id']}',
+                                json={
+        'title': "updated_title",
+        'content': "updated_content",
+        'is_published': False},
+        headers=header2)
+
+    assert response.status_code == 401
+    assert f"Post with ID {post1.json()['id']} does not belong to User" in response.json()[
+        'detail']
+
+
 async def test_post_delete_success(client: AsyncClient, auth_header, create_post):
     header = await auth_header()
     post1 = await create_post(header=header)
@@ -171,6 +219,47 @@ async def test_post_delete_success(client: AsyncClient, auth_header, create_post
     assert response.status_code == 200
     assert response.json()[
         'message'] == f"Post with ID '{post1.json()['id']}' deleted successfully!"
+
+
+async def test_post_delete_admin_success(client: AsyncClient, auth_header, create_post, admin_auth_header):
+    header = await auth_header()
+    post1 = await create_post(header=header)
+    header_admin = await admin_auth_header()
+
+    response = await client.get(f'/post/get_post_by_id/{post1.json()['id']}', headers=header)
+    assert response.status_code == 200
+    assert response.json()['id'] == post1.json()['id']
+
+    response = await client.delete(f'/post/delete_post/{post1.json()['id']}',
+                                   headers=header_admin)
+
+    assert response.status_code == 200
+    assert response.json()[
+        'message'] == f"Post with ID '{post1.json()['id']}' deleted successfully!"
+
+    response = await client.get(f'/post/get_post_by_id/{post1.json()['id']}', headers=header)
+    assert response.status_code == 404
+    assert response.json()['detail'] == "The post does not exist for the user"
+
+
+async def test_post_delete_invalid_user(client: AsyncClient, auth_header, create_post):
+    header = await auth_header()
+    post1 = await create_post(header=header)
+    response = await client.get(f'/post/get_post_by_id/{post1.json()['id']}', headers=header)
+    assert response.status_code == 200
+    assert response.json()['id'] == post1.json()['id']
+
+    header2 = await auth_header()
+    response = await client.delete(f'/post/delete_post/{post1.json()['id']}',
+                                   headers=header2)
+
+    assert response.status_code == 401
+    assert f"Post with ID {post1.json()['id']} does not belong to User" in response.json()[
+        'detail']
+
+    response = await client.get(f'/post/get_post_by_id/{post1.json()['id']}', headers=header)
+    assert response.status_code == 200
+    assert response.json()['id'] == post1.json()['id']
 
 
 async def test_post_search_tag_title_success_on_both(client: AsyncClient, auth_header, create_post, create_tag, assign_tag_to_post):

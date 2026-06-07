@@ -40,3 +40,12 @@ class UserService:
 
         else:
             return None
+
+    async def promote_user(self,
+                           user_id: int,
+                           session: AsyncSession):
+        result = await UserRepository().get_by_id(user_id, session)
+        if result is None:
+            return None
+        else:
+            return await UserRepository().promote_user(result, session)

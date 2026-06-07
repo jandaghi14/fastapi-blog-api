@@ -45,9 +45,12 @@ class PostService:
         result = await PostRepository().get_by_id(post_id, session)
         if result is None:
             return None
+        if user.role == 'admin':
+            return await PostRepository().update(post_id,  session, new_post)
+
         if result and result.owner_id == user.id:
             return await PostRepository().update(post_id,  session, new_post)
-        return result
+        return False
 
     async def delete_post(self,
                           post_id: int,
@@ -56,6 +59,8 @@ class PostService:
         result = await PostRepository().get_by_id(post_id, session)
         if result is None:
             return None
+        if user.role == 'admin':
+            return await PostRepository().delete(post_id,  session)
         if result and result.owner_id == user.id:
             return await PostRepository().delete(post_id,  session)
         return False

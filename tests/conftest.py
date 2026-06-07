@@ -98,6 +98,28 @@ async def auth_header(get_token):
         token = await get_token(username, password, email)
         return {"Authorization": f"Bearer {token}"}
     return _auth
+
+
+@pytest_asyncio.fixture
+async def admin_auth_header(client, only_get_token):
+    async def _admin():
+        async with LocalSession() as session:
+            from app.models.model_user import User
+            from app.core.security import hash_password
+            username = f"admin_{uuid.uuid4().hex[:6]}"
+            password = f"pass_{uuid.uuid4().hex[:6]}"
+            admin = User(
+                username=username,
+                email=f"{username}@email.com",
+                password=hash_password(password),
+                role="admin",
+                is_active=True
+            )
+            session.add(admin)
+            await session.commit()
+        token = await only_get_token(username, password)
+        return {"Authorization": f"Bearer {token}"}
+    return _admin
 # =========================================================================================
 
 
