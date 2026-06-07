@@ -82,3 +82,19 @@ async def delete_post_endpoint(post_id: int,
         raise HTTPException(
             status_code=401, detail=f"Post with ID {post_id} does not belong to User '{current_user.username}' "
         )
+
+
+@router_post.get('/search_tag_title')
+async def search_endpoint(title: Optional[str] = None,
+                          tag: Optional[str] = None,
+                          current_user: User = Depends(
+        get_current_user),
+        session: AsyncSession = Depends(get_db)):
+    if title is None and tag is None:
+        raise HTTPException(
+            status_code=400, detail="Provide at least a title or a tag to search.")
+
+    result = await PostService().search_tag_title(session, title, tag)
+    if result == []:
+        return {'message': f"No match found on '{tag}' or  '{title}'"}
+    return result

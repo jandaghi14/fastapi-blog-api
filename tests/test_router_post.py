@@ -151,3 +151,83 @@ async def test_post_delete_success(client: AsyncClient, auth_header, create_post
     assert response.status_code == 200
     assert response.json()[
         'message'] == f"Post with ID '{post1.json()['id']}' deleted successfully!"
+
+
+async def test_post_search_tag_title_success_on_both(client: AsyncClient, auth_header, create_post, create_tag, assign_tag_to_post):
+    header = await auth_header()
+    post1 = await create_post(title='title1', header=header)
+    post2 = await create_post(title='subject2', header=header)
+    post3 = await create_post(title='desc3', header=header)
+    tag1 = await create_tag(name="tag1", header=header)
+    tag2 = await create_tag(name="tag2", header=header)
+    tag3 = await create_tag(name="tag3", header=header)
+    await assign_tag_to_post(tag_id=tag1.json()['id'], post_id=post1.json()['id'], header=header)
+    await assign_tag_to_post(tag_id=tag1.json()['id'], post_id=post2.json()['id'], header=header)
+    await assign_tag_to_post(tag_id=tag1.json()['id'], post_id=post3.json()['id'], header=header)
+    await assign_tag_to_post(tag_id=tag2.json()['id'], post_id=post1.json()['id'], header=header)
+    await assign_tag_to_post(tag_id=tag2.json()['id'], post_id=post2.json()['id'], header=header)
+    await assign_tag_to_post(tag_id=tag3.json()['id'], post_id=post3.json()['id'], header=header)
+
+    response = await client.get(f"/post/search_tag_title",
+                                params={'tag': tag1.json()['name'],
+                                        'title': "title1"},
+                                headers=header)
+    assert response.status_code == 200
+    assert len(response.json()) == 3
+
+
+async def test_post_search_tag_title_success_on_tag(client: AsyncClient, auth_header, create_post, create_tag, assign_tag_to_post):
+    header = await auth_header()
+    post1 = await create_post(title='title1', header=header)
+    post2 = await create_post(title='subject2', header=header)
+    post3 = await create_post(title='desc3', header=header)
+    tag1 = await create_tag(name="tag1", header=header)
+    tag2 = await create_tag(name="tag2", header=header)
+    tag3 = await create_tag(name="tag3", header=header)
+    await assign_tag_to_post(tag_id=tag1.json()['id'], post_id=post1.json()['id'], header=header)
+    await assign_tag_to_post(tag_id=tag1.json()['id'], post_id=post2.json()['id'], header=header)
+    await assign_tag_to_post(tag_id=tag1.json()['id'], post_id=post3.json()['id'], header=header)
+    await assign_tag_to_post(tag_id=tag2.json()['id'], post_id=post1.json()['id'], header=header)
+    await assign_tag_to_post(tag_id=tag2.json()['id'], post_id=post2.json()['id'], header=header)
+    await assign_tag_to_post(tag_id=tag3.json()['id'], post_id=post3.json()['id'], header=header)
+    response = await client.get(f"/post/search_tag_title",
+                                params={'tag': tag1.json()['name'],
+                                        'title': None
+                                        },
+                                headers=header)
+    assert response.status_code == 200
+    assert len(response.json()) == 3
+
+
+async def test_post_search_tag_title_success_on_title(client: AsyncClient, auth_header, create_post, create_tag, assign_tag_to_post):
+    header = await auth_header()
+    post1 = await create_post(title='title1', header=header)
+    post2 = await create_post(title='subject2', header=header)
+    post3 = await create_post(title='desc3', header=header)
+    tag1 = await create_tag(name="tag1", header=header)
+    tag2 = await create_tag(name="tag2", header=header)
+    tag3 = await create_tag(name="tag3", header=header)
+    await assign_tag_to_post(tag_id=tag1.json()['id'], post_id=post1.json()['id'], header=header)
+    await assign_tag_to_post(tag_id=tag1.json()['id'], post_id=post2.json()['id'], header=header)
+    await assign_tag_to_post(tag_id=tag1.json()['id'], post_id=post3.json()['id'], header=header)
+    await assign_tag_to_post(tag_id=tag2.json()['id'], post_id=post1.json()['id'], header=header)
+    await assign_tag_to_post(tag_id=tag2.json()['id'], post_id=post2.json()['id'], header=header)
+    await assign_tag_to_post(tag_id=tag3.json()['id'], post_id=post3.json()['id'], header=header)
+    response = await client.get(f"/post/search_tag_title",
+                                params={
+                                    'title': 'title1'
+                                },
+                                headers=header)
+    assert response.status_code == 200
+    assert len(response.json()) == 1
+
+
+async def test_post_search_tag_title_not_found(client: AsyncClient, auth_header, create_post, create_tag, assign_tag_to_post):
+    header = await auth_header()
+
+    response = await client.get(f"/post/search_tag_title",
+
+                                headers=header)
+    assert response.status_code == 400
+    assert response.json()[
+        'detail'] == "Provide at least a title or a tag to search."

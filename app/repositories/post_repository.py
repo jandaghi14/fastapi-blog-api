@@ -1,7 +1,8 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, update
+from sqlalchemy import select, update, or_
 from typing import Optional
 from app.models.model_post import Post
+from app.models.model_tag import Tag
 from app.repositories.base_repository import BaseRepository
 from app.schemas import scheme_post
 
@@ -74,4 +75,27 @@ class PostRepository(BaseRepository):
             query = query.where(Post.is_published == is_published)
 
         result = await session.execute(query)
+        return result.scalars().all()
+
+    async def search_tag_title(self,
+                               session: AsyncSession,
+
+                               title: Optional[str] = None,
+                               tag: Optional[str] = None,
+                               ):
+        if title is None and tag is None:
+            return []
+
+        conditions = []
+        if title is not None:
+            conditions.append(Post.title.ilike(f"%{title}%"))
+        if tag is not None:
+            conditions.append(Tag.name.ilike(f"%{tag}%"))
+
+        result = await session.execute(
+            select(Post)
+            .outerjoin(Post.tags)
+            .where(or_(*conditions))
+            .distinct()
+        )
         return result.scalars().all()

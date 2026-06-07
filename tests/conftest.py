@@ -146,6 +146,19 @@ async def create_tag(client):
         return await client.post('/tag/create_tag', params={'name': name}, headers=header)
     return _create_tag
 
+
+@pytest_asyncio.fixture()
+async def assign_tag_to_post(client):
+    async def _assign_tag_to_post(header, tag_id, post_id):
+
+        return await client.post("/tag/assign_tag_to_post",
+                                 params={
+                                     'tag_id': tag_id,
+                                     'post_id': post_id
+                                 }, headers=header)
+    return _assign_tag_to_post
+
+
 # =========================================================================================
 
 

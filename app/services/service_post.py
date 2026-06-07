@@ -56,3 +56,9 @@ class PostService:
                           title: Optional[str] = None,
                           is_published: Optional[bool] = None):
         return await PostRepository().search(session, title=title, is_published=is_published)
+
+    async def search_tag_title(self,
+                               session: AsyncSession,
+                               title: Optional[str] = None,
+                               tag: Optional[str] = None,):
+        return await PostRepository().search_tag_title(title=title, tag=tag, session=session)
