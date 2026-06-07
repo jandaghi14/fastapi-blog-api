@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, update, or_
+from sqlalchemy import select, update, or_, func
 from typing import Optional
 from app.models.model_post import Post
 from app.models.model_tag import Tag
@@ -27,9 +27,15 @@ class PostRepository(BaseRepository):
         return result.scalars().first()
 
     async def get_all(self,
-                      session: AsyncSession):
-        result = await session.execute(select(Post))
-        return result.scalars().all()
+                      session: AsyncSession,
+                      offset,
+                      size,
+                      ):
+        total = await session.execute(select(func.count()).select_from(Post))
+        total = total.scalar()
+        result = await session.execute(select(Post).offset(offset).limit(size))
+        result = result.scalars().all()
+        return (total, result)
 
     async def get_all_posts_of_the_user(self,
                                         user_id: int,

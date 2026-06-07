@@ -22,14 +22,34 @@ async def test_post_get_all_posts_endpoint_success(client: AsyncClient, auth_hea
 
     response = await client.get('/post/get_all_posts', headers=header)
     assert response.status_code == 200
-    assert len(response.json()) == 4
+    assert response.json()['total'] == 4
+    assert response.json()['page'] == 1
+    assert response.json()['pages'] == 1
+    assert response.json()['size'] == 5
+
+
+async def test_post_get_all_posts_pagination(client: AsyncClient, auth_header, create_post):
+    header = await auth_header()
+    await create_post(header=header)
+    await create_post(header=header)
+    await create_post(header=header)
+    await create_post(header=header)
+
+    response = await client.get('/post/get_all_posts',
+                                params={'page': 1, 'size': 2},
+                                headers=header)
+    assert response.status_code == 200
+    assert response.json()['total'] == 4
+    assert response.json()['page'] == 1
+    assert response.json()['pages'] == 2
+    assert response.json()['size'] == 2
 
 
 async def test_post_get_all_posts_endpoint_without_post(client: AsyncClient, auth_header, create_post):
     header = await auth_header()
     response = await client.get('/post/get_all_posts', headers=header)
     assert response.status_code == 200
-    assert len(response.json()) == 0
+    assert response.json()['items'] == []
 
 
 async def test_post_get_post_by_id_endpoint_success(client: AsyncClient, auth_header, create_post):

@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Optional
-
+import math
 from app.models.model_user import User
 from app.schemas import scheme_post
 from app.repositories.post_repository import PostRepository
@@ -18,8 +18,18 @@ class PostService:
 
     async def get_all_posts(self,
                             user: User,
-                            session: AsyncSession):
-        return await PostRepository().get_all(session)
+                            session: AsyncSession,
+                            page,
+                            size):
+        offset = (page-1)*size
+        result = await PostRepository().get_all(session, offset=offset, size=size)
+        return {
+            "total": result[0],
+            "page": page,
+            "pages": math.ceil(result[0]/size),
+            "size": size,
+            "items": result[1]
+        }
 
     async def get_post_by_id(self,
                              post_id: int,

@@ -20,9 +20,12 @@ async def create_post(post: PostCreate,
 
 @router_post.get('/get_all_posts')
 async def get_all_posts_endpoint(current_user: User = Depends(get_current_user),
-                                 session: AsyncSession = Depends(get_db)
+                                 session: AsyncSession = Depends(get_db,),
+                                 page: int = 1,
+                                 size: Optional[int] = 5,
                                  ):
-    return await PostService().get_all_posts(current_user, session)
+
+    return await PostService().get_all_posts(current_user, session=session, page=page, size=size)
 
 
 @router_post.get('/get_post_by_id/{post_id}')
