@@ -4,6 +4,8 @@ import math
 from app.models.model_user import User
 from app.schemas import scheme_post
 from app.repositories.post_repository import PostRepository
+from app.core import exceptions
+from app.core.logger import logger
 
 
 class PostService:
@@ -11,9 +13,12 @@ class PostService:
                           post: scheme_post.PostCreate,
                           user: User,
                           session: AsyncSession):
+        user_id = user.id
         result = await PostRepository().create(post,
                                                user.id,
                                                session)
+        logger.info(
+            f"User {user_id} created a post - post_service - create_post")
         return result
 
     async def get_all_posts(self,
@@ -44,13 +49,15 @@ class PostService:
                           session: AsyncSession):
         result = await PostRepository().get_by_id(post_id, session)
         if result is None:
-            return None
+            raise exceptions.NotFoundException(
+                detail=f"Post with ID {post_id} does not exist")
         if user.role == 'admin':
             return await PostRepository().update(post_id,  session, new_post)
 
         if result and result.owner_id == user.id:
             return await PostRepository().update(post_id,  session, new_post)
-        return False
+        raise exceptions.UnauthorizedException(
+            detail=f"Post with ID {post_id} does not belong to you")
 
     async def delete_post(self,
                           post_id: int,
@@ -58,12 +65,14 @@ class PostService:
                           session: AsyncSession):
         result = await PostRepository().get_by_id(post_id, session)
         if result is None:
-            return None
+            raise exceptions.NotFoundException(
+                detail=f"Post with ID {post_id} does not exist")
         if user.role == 'admin':
             return await PostRepository().delete(post_id,  session)
         if result and result.owner_id == user.id:
             return await PostRepository().delete(post_id,  session)
-        return False
+        raise exceptions.UnauthorizedException(
+            detail=f"Post with ID {post_id} does not belong to you")
 
     async def search_post(self,
                           user: User,

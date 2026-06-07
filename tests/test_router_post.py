@@ -153,8 +153,7 @@ async def test_post_update_success_owner(client: AsyncClient, auth_header, creat
         headers=header)
 
     assert response.status_code == 200
-    assert response.json()[
-        'message'] == f"Post with ID '{post1.json()['id']}' updated successfully!"
+    assert response.json() == True
 
 
 async def test_post_update_success_admin(client: AsyncClient, auth_header, create_post, admin_auth_header):
@@ -174,8 +173,7 @@ async def test_post_update_success_admin(client: AsyncClient, auth_header, creat
         headers=header_admin)
 
     assert response.status_code == 200
-    assert response.json()[
-        'message'] == f"Post with ID '{post1.json()['id']}' updated successfully!"
+    assert response.json() == True
 
     response = await client.get(f'/post/get_post_by_id/{post1.json()['id']}', headers=header)
     assert response.status_code == 200
@@ -201,7 +199,7 @@ async def test_post_update_invalid_user(client: AsyncClient, auth_header, create
         headers=header2)
 
     assert response.status_code == 401
-    assert f"Post with ID {post1.json()['id']} does not belong to User" in response.json()[
+    assert f"Post with ID {post1.json()['id']} does not belong to you" in response.json()[
         'detail']
 
 
@@ -254,7 +252,7 @@ async def test_post_delete_invalid_user(client: AsyncClient, auth_header, create
                                    headers=header2)
 
     assert response.status_code == 401
-    assert f"Post with ID {post1.json()['id']} does not belong to User" in response.json()[
+    assert f"Post with ID {post1.json()['id']} does not belong to you" in response.json()[
         'detail']
 
     response = await client.get(f'/post/get_post_by_id/{post1.json()['id']}', headers=header)

@@ -91,3 +91,25 @@ async def test_user_login_endpoint_wrong_password(client: AsyncClient):
 
     assert response.status_code == 401
     assert response.json()['detail'] == "username or password is wrong"
+
+
+async def test_user_login_rate_limit(client: AsyncClient):
+    username = f"user_{uuid.uuid4().hex[:6]}"
+    password = f"pass_{uuid.uuid4().hex[:6]}"
+    email = f"email_{uuid.uuid4().hex[:6]}@email.com"
+    await client.post("/auth/user_register",
+                      json={"username": username,
+                            "password": password,
+                            "email": email
+                            })
+
+    for _ in range(5):
+        await client.post("/auth/login",
+                          data={"username": username,
+                                "password": password})
+
+    response = await client.post("/auth/login",
+                                 data={"username": username,
+                                       "password": password})
+
+    assert response.status_code == 429

@@ -7,7 +7,7 @@ from app.schemas.scheme_post import PostCreate, PostUpdate
 from app.models.model_user import User
 from app.core.dependencies import get_current_user
 from app.services.service_post import PostService
-
+from app.core.logger import logger
 router_post = APIRouter(prefix='/post', tags=['Post'])
 
 
@@ -15,7 +15,11 @@ router_post = APIRouter(prefix='/post', tags=['Post'])
 async def create_post(post: PostCreate,
                       current_user: User = Depends(get_current_user),
                       session: AsyncSession = Depends(get_db)):
-    return await PostService().create_post(post, current_user, session)
+    user_id = current_user.id
+    result = await PostService().create_post(post, current_user, session)
+    logger.info(
+        f"User {user_id} created a post - router_post - create_post")
+    return result
 
 
 @router_post.get('/get_all_posts')
@@ -57,16 +61,7 @@ async def update_post_endpoint(post_id: int,
                                current_user: User = Depends(get_current_user),
                                session: AsyncSession = Depends(get_db),
                                ):
-    result = await PostService().update_post(post_id, new_post, current_user, session)
-    if result:
-        return {"message": f"Post with ID '{post_id}' updated successfully!"}
-    elif result is None:
-        raise HTTPException(
-            status_code=404, detail=f"Post with ID {post_id} for User '{current_user.username}' does not exists")
-    elif result == False:
-        raise HTTPException(
-            status_code=401, detail=f"Post with ID {post_id} does not belong to User '{current_user.username}' "
-        )
+    return await PostService().update_post(post_id, new_post, current_user, session)
 
 
 @router_post.delete('/delete_post/{post_id}')

@@ -5,6 +5,7 @@ from app.models.model_post import Post
 from app.models.model_tag import Tag
 from app.repositories.base_repository import BaseRepository
 from app.schemas import scheme_post
+from app.core.logger import logger
 
 
 class PostRepository(BaseRepository):
@@ -13,10 +14,13 @@ class PostRepository(BaseRepository):
                      owner_id: int,
                      session: AsyncSession,
                      ):
+        user_id = owner_id
         new_post = Post(owner_id=owner_id, **data.model_dump())
         session.add(new_post)
         await session.commit()
         await session.refresh(new_post)
+        logger.info(
+            f"User {user_id} created a post - post_repository - create")
         return new_post
 
     async def get_by_id(self,

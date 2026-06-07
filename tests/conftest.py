@@ -1,3 +1,4 @@
+import pytest
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from sqlalchemy import text
 import uuid
@@ -5,6 +6,8 @@ import pytest_asyncio
 from httpx import AsyncClient, ASGITransport
 from app.core.config import settings
 from app.db.base import Base
+
+from app.core.limiter import limiter
 
 from app.main import app
 from app.db.session import get_db
@@ -53,6 +56,11 @@ async def clear_tables():
     async with engine.begin() as conn:
         await conn.execute(text("TRUNCATE TABLE posts, users, comments, posts_tags, tags RESTART IDENTITY CASCADE"))
 
+
+@pytest.fixture(autouse=True)
+def reset_limiter():
+    yield
+    limiter.reset()
 # =========================================================================================
 
 
