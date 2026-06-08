@@ -273,15 +273,15 @@ The test suite runs against a **dedicated test database** (isolated from develop
 pytest
 ```
 
-All **56 tests pass** (`56 passed, 1 warning in ~35s`):
+All **55 tests pass** (`55 passed, 1 warning in ~35s`):
 
 | File | Tests |
 |---|---|
 | `test_router_auth.py` | 6 |
 | `test_router_comment.py` | 14 |
 | `test_router_post.py` | 19 |
-| `test_router_tag.py` | 16 |
-| **Total** | **56** |
+| `test_router_tag.py` | 15 |
+| **Total** | **55** |
 
 Coverage includes:
 
