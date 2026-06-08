@@ -12,3 +12,4 @@ httpx
 asyncpg
 slowapi
 python-multipart
+flake8
