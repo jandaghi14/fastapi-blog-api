@@ -1,3 +1,4 @@
+[![CI](https://github.com/jandaghi14/fastapi-blog-api/actions/workflows/ci.yml/badge.svg)](https://github.com/jandaghi14/fastapi-blog-api/actions/workflows/ci.yml)
 # fastapi-blog-api
 
 [![GitHub](https://img.shields.io/badge/GitHub-jandaghi14-181717?logo=github)](https://github.com/jandaghi14)
