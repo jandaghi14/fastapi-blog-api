@@ -13,3 +13,4 @@ asyncpg
 slowapi
 python-multipart
 flake8
+bcrypt==4.0.1
