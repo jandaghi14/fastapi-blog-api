@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import Optional
 
 from app.db.session import get_db
 from app.schemas.scheme_comment import CommentCreate, CommentUpdate

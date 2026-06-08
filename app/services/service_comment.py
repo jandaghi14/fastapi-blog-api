@@ -1,5 +1,4 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import Optional
 
 from app.models.model_user import User
 from app.schemas import scheme_comment

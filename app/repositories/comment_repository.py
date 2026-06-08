@@ -1,6 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update
-from typing import Optional
 from app.models.model_comment import Comment
 from app.repositories.base_repository import BaseRepository
 from app.schemas import scheme_comment
@@ -35,7 +34,9 @@ class CommentRepository(BaseRepository):
                      data: scheme_comment.CommentUpdate,
                      session: AsyncSession,
                      ):
-        await session.execute(update(Comment).where(Comment.id == comment_id).values(**data.model_dump(exclude_unset=True)))
+        await session.execute(update(Comment)
+                              .where(Comment.id == comment_id)
+                              .values(**data.model_dump(exclude_unset=True)))
         await session.commit()
         return True
 

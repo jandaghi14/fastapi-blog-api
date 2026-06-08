@@ -21,7 +21,9 @@ class PostTagRepository(BaseRepository):
                      tag_id: int,
                      post_id: int,
                      session: AsyncSession):
-        fetched_tag = await session.execute(select(PostTag).where(PostTag.post_id == post_id).where(PostTag.tag_id == tag_id))
+        fetched_tag = await session.execute(select(PostTag)
+                                            .where(PostTag.post_id == post_id)
+                                            .where(PostTag.tag_id == tag_id))
         result = fetched_tag.scalars().first()
         if result:
             await session.delete(result)
@@ -34,7 +36,9 @@ class PostTagRepository(BaseRepository):
                            post_id: int,
                            tag_id: int,
                            session: AsyncSession):
-        fetched_data = await session.execute(select(PostTag).where(PostTag.post_id == post_id).where(PostTag.tag_id == tag_id))
+        fetched_data = await session.execute(select(PostTag)
+                                             .where(PostTag.post_id == post_id)
+                                             .where(PostTag.tag_id == tag_id))
         return fetched_data.scalars().first()
 
     async def get_by_id(self, *args, **kwargs):

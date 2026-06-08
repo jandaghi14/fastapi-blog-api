@@ -16,7 +16,8 @@ class Token:
         try:
             payload = {
                 'sub': user_object.username,
-                'exp': datetime.now(timezone.utc) + (delta_time if delta_time is not None else timedelta(minutes=int(EXPIRE_ACCESS_TIME)))
+                'exp': datetime.now(timezone.utc)
+                + (delta_time if delta_time is not None else timedelta(minutes=int(EXPIRE_ACCESS_TIME)))
             }
             return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
         except JWTError as i:

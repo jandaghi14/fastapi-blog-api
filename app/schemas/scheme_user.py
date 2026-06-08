@@ -25,3 +25,8 @@ class UserUpdate(BaseModel):
     role: Optional[Role] = None
     is_active: Optional[bool] = None
     password: Optional[str] = None
+
+
+class OwnerResponse(BaseModel):
+    username: str
+    model_config = ConfigDict(from_attributes=True)

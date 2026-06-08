@@ -104,7 +104,7 @@ fastapi-blog-api/
 │   ├── test_router_post.py
 │   ├── test_router_comment.py
 │   ├── test_router_tag.py
-│   └── test_logger.py
+│   
 ├── .env
 ├── alembic.ini
 ├── pytest.ini
@@ -279,7 +279,7 @@ All **56 tests pass** (`56 passed, 1 warning in ~35s`):
 | `test_router_auth.py` | 6 |
 | `test_router_comment.py` | 14 |
 | `test_router_post.py` | 19 |
-| `test_router_tag.py` | 17 |
+| `test_router_tag.py` | 16 |
 | **Total** | **56** |
 
 Coverage includes:

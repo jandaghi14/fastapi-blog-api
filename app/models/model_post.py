@@ -16,3 +16,4 @@ class Post(Base):
     owner_id = Column(Integer, ForeignKey('users.id'),
                       nullable=False)
     tags = relationship('Tag', secondary='posts_tags', back_populates="posts")
+    owner = relationship("User", lazy="joined")

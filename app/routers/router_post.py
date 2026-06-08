@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Optional
 
 from app.db.session import get_db
-from app.schemas.scheme_post import PostCreate, PostUpdate
+from app.schemas.scheme_post import PostCreate, PostUpdate, PostResponse, PostPaginatedResponse
 from app.models.model_user import User
 from app.core.dependencies import get_current_user
 from app.services.service_post import PostService
@@ -11,7 +11,7 @@ from app.core.logger import logger
 router_post = APIRouter(prefix='/post', tags=['Post'])
 
 
-@router_post.post('/create_post')
+@router_post.post('/create_post', response_model=PostResponse)
 async def create_post(post: PostCreate,
                       current_user: User = Depends(get_current_user),
                       session: AsyncSession = Depends(get_db)):
@@ -22,7 +22,7 @@ async def create_post(post: PostCreate,
     return result
 
 
-@router_post.get('/get_all_posts')
+@router_post.get('/get_all_posts', response_model=PostPaginatedResponse)
 async def get_all_posts_endpoint(current_user: User = Depends(get_current_user),
                                  session: AsyncSession = Depends(get_db,),
                                  page: int = 1,
@@ -32,7 +32,7 @@ async def get_all_posts_endpoint(current_user: User = Depends(get_current_user),
     return await PostService().get_all_posts(current_user, session=session, page=page, size=size)
 
 
-@router_post.get('/get_post_by_id/{post_id}')
+@router_post.get('/get_post_by_id/{post_id}', response_model=PostResponse)
 async def get_post_by_id_endpoint(post_id: int,
                                   current_user: User = Depends(
                                       get_current_user),
@@ -45,7 +45,7 @@ async def get_post_by_id_endpoint(post_id: int,
             status_code=404, detail="The post does not exist for the user")
 
 
-@router_post.get('/search')
+@router_post.get('/search', response_model=list[PostResponse])
 async def search_endpoint(title: Optional[str] = None,
                           is_published: Optional[bool] = None,
                           current_user: User = Depends(
@@ -76,16 +76,16 @@ async def delete_post_endpoint(post_id: int,
     elif result is None:
         raise HTTPException(
             status_code=404, detail=f"Post with ID {post_id} for User '{current_user.username}' does not exists")
-    elif result == False:
+    elif result is False:
         raise HTTPException(
             status_code=401, detail=f"Post with ID {post_id} does not belong to User '{current_user.username}' "
         )
 
 
-@router_post.get('/search_tag_title')
-async def search_endpoint(title: Optional[str] = None,
-                          tag: Optional[str] = None,
-                          current_user: User = Depends(
+@router_post.get('/search_tag_title', response_model=list[PostResponse])
+async def search_tag_title_endpoint(title: Optional[str] = None,
+                                    tag: Optional[str] = None,
+                                    current_user: User = Depends(
         get_current_user),
         session: AsyncSession = Depends(get_db)):
     if title is None and tag is None:
@@ -93,6 +93,5 @@ async def search_endpoint(title: Optional[str] = None,
             status_code=400, detail="Provide at least a title or a tag to search.")
 
     result = await PostService().search_tag_title(session, title, tag)
-    if result == []:
-        return {'message': f"No match found on '{tag}' or  '{title}'"}
+
     return result

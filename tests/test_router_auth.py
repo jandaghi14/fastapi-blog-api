@@ -52,7 +52,7 @@ async def test_user_login_endpoint_success(client: AsyncClient):
                                  )
 
     assert response.status_code == 200
-    assert response.json()['access_token'] != False
+    assert response.json()['access_token'] is not False
 
 
 async def test_user_login_endpoint_wrong_username(client: AsyncClient):

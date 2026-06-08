@@ -85,4 +85,5 @@ class PostService:
                                session: AsyncSession,
                                title: Optional[str] = None,
                                tag: Optional[str] = None,):
-        return await PostRepository().search_tag_title(title=title, tag=tag, session=session)
+        result = await PostRepository().search_tag_title(title=title, tag=tag, session=session)
+        return result

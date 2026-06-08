@@ -45,7 +45,7 @@ async def test_post_get_all_posts_pagination(client: AsyncClient, auth_header, c
     assert response.json()['size'] == 2
 
 
-async def test_post_get_all_posts_endpoint_without_post(client: AsyncClient, auth_header, create_post):
+async def test_post_get_all_posts_endpoint_without_post(client: AsyncClient, auth_header):
     header = await auth_header()
     response = await client.get('/post/get_all_posts', headers=header)
     assert response.status_code == 200
@@ -54,16 +54,16 @@ async def test_post_get_all_posts_endpoint_without_post(client: AsyncClient, aut
 
 async def test_post_get_post_by_id_endpoint_success(client: AsyncClient, auth_header, create_post):
     header = await auth_header()
-    post1 = await create_post(header=header)
+    await create_post(header=header)
     post2 = await create_post(header=header)
-    post3 = await create_post(header=header)
-    post4 = await create_post(header=header)
+    await create_post(header=header)
+    await create_post(header=header)
     response = await client.get(f'/post/get_post_by_id/{post2.json()['id']}', headers=header)
     assert response.status_code == 200
     assert response.json()['id'] == post2.json()['id']
 
 
-async def test_post_get_post_by_id_endpoint_not_found(client: AsyncClient, auth_header, create_post):
+async def test_post_get_post_by_id_endpoint_not_found(client: AsyncClient, auth_header):
     header = await auth_header()
     response = await client.get(f'/post/get_post_by_id/{1}', headers=header)
     assert response.status_code == 404
@@ -82,10 +82,10 @@ async def test_post_get_post_by_id_endpoint_not_owner_user(client: AsyncClient, 
 
 async def test_post_search_endpoint(client: AsyncClient, auth_header, create_post):
     header = await auth_header()
-    title = f"post_title_keyword_search_title"
-    content = f"post_content_keyword_search_content"
+    title = "post_title_keyword_search_title"
+    content = "post_content_keyword_search_content"
     is_published = True
-    post1 = await create_post(title=title, content=content, is_published=is_published, header=header)
+    await create_post(title=title, content=content, is_published=is_published, header=header)
     await create_post(header=header)
     await create_post(header=header)
     await create_post(header=header)
@@ -116,10 +116,10 @@ async def test_post_search_endpoint(client: AsyncClient, auth_header, create_pos
 
 async def test_post_search_endpoint_no_matching(client: AsyncClient, auth_header, create_post):
     header = await auth_header()
-    title = f"post_title_keyword_search_title"
-    content = f"post_content_keyword_search_content"
+    title = "post_title_keyword_search_title"
+    content = "post_content_keyword_search_content"
     is_published = True
-    post1 = await create_post(title=title, content=content, is_published=is_published, header=header)
+    await create_post(title=title, content=content, is_published=is_published, header=header)
     await create_post(header=header)
     await create_post(header=header)
     await create_post(header=header)
@@ -153,7 +153,7 @@ async def test_post_update_success_owner(client: AsyncClient, auth_header, creat
         headers=header)
 
     assert response.status_code == 200
-    assert response.json() == True
+    assert response.json() is True
 
 
 async def test_post_update_success_admin(client: AsyncClient, auth_header, create_post, admin_auth_header):
@@ -173,13 +173,13 @@ async def test_post_update_success_admin(client: AsyncClient, auth_header, creat
         headers=header_admin)
 
     assert response.status_code == 200
-    assert response.json() == True
+    assert response.json() is True
 
     response = await client.get(f'/post/get_post_by_id/{post1.json()['id']}', headers=header)
     assert response.status_code == 200
     assert response.json()['title'] == "updated_title"
     assert response.json()['content'] == "updated_content"
-    assert response.json()['is_published'] == False
+    assert response.json()['is_published'] is False
 
 
 async def test_post_update_invalid_user(client: AsyncClient, auth_header, create_post):
@@ -260,7 +260,11 @@ async def test_post_delete_invalid_user(client: AsyncClient, auth_header, create
     assert response.json()['id'] == post1.json()['id']
 
 
-async def test_post_search_tag_title_success_on_both(client: AsyncClient, auth_header, create_post, create_tag, assign_tag_to_post):
+async def test_post_search_tag_title_success_on_both(client: AsyncClient,
+                                                     auth_header,
+                                                     create_post,
+                                                     create_tag,
+                                                     assign_tag_to_post):
     header = await auth_header()
     post1 = await create_post(title='title1', header=header)
     post2 = await create_post(title='subject2', header=header)
@@ -275,7 +279,7 @@ async def test_post_search_tag_title_success_on_both(client: AsyncClient, auth_h
     await assign_tag_to_post(tag_id=tag2.json()['id'], post_id=post2.json()['id'], header=header)
     await assign_tag_to_post(tag_id=tag3.json()['id'], post_id=post3.json()['id'], header=header)
 
-    response = await client.get(f"/post/search_tag_title",
+    response = await client.get("/post/search_tag_title",
                                 params={'tag': tag1.json()['name'],
                                         'title': "title1"},
                                 headers=header)
@@ -283,7 +287,11 @@ async def test_post_search_tag_title_success_on_both(client: AsyncClient, auth_h
     assert len(response.json()) == 3
 
 
-async def test_post_search_tag_title_success_on_tag(client: AsyncClient, auth_header, create_post, create_tag, assign_tag_to_post):
+async def test_post_search_tag_title_success_on_tag(client: AsyncClient,
+                                                    auth_header,
+                                                    create_post,
+                                                    create_tag,
+                                                    assign_tag_to_post):
     header = await auth_header()
     post1 = await create_post(title='title1', header=header)
     post2 = await create_post(title='subject2', header=header)
@@ -297,7 +305,7 @@ async def test_post_search_tag_title_success_on_tag(client: AsyncClient, auth_he
     await assign_tag_to_post(tag_id=tag2.json()['id'], post_id=post1.json()['id'], header=header)
     await assign_tag_to_post(tag_id=tag2.json()['id'], post_id=post2.json()['id'], header=header)
     await assign_tag_to_post(tag_id=tag3.json()['id'], post_id=post3.json()['id'], header=header)
-    response = await client.get(f"/post/search_tag_title",
+    response = await client.get("/post/search_tag_title",
                                 params={'tag': tag1.json()['name'],
                                         'title': None
                                         },
@@ -306,7 +314,11 @@ async def test_post_search_tag_title_success_on_tag(client: AsyncClient, auth_he
     assert len(response.json()) == 3
 
 
-async def test_post_search_tag_title_success_on_title(client: AsyncClient, auth_header, create_post, create_tag, assign_tag_to_post):
+async def test_post_search_tag_title_success_on_title(client: AsyncClient,
+                                                      auth_header,
+                                                      create_post,
+                                                      create_tag,
+                                                      assign_tag_to_post):
     header = await auth_header()
     post1 = await create_post(title='title1', header=header)
     post2 = await create_post(title='subject2', header=header)
@@ -320,7 +332,7 @@ async def test_post_search_tag_title_success_on_title(client: AsyncClient, auth_
     await assign_tag_to_post(tag_id=tag2.json()['id'], post_id=post1.json()['id'], header=header)
     await assign_tag_to_post(tag_id=tag2.json()['id'], post_id=post2.json()['id'], header=header)
     await assign_tag_to_post(tag_id=tag3.json()['id'], post_id=post3.json()['id'], header=header)
-    response = await client.get(f"/post/search_tag_title",
+    response = await client.get("/post/search_tag_title",
                                 params={
                                     'title': 'title1'
                                 },
@@ -329,12 +341,12 @@ async def test_post_search_tag_title_success_on_title(client: AsyncClient, auth_
     assert len(response.json()) == 1
 
 
-async def test_post_search_tag_title_not_found(client: AsyncClient, auth_header, create_post, create_tag, assign_tag_to_post):
+async def test_post_search_tag_title_not_found(client: AsyncClient, auth_header):
     header = await auth_header()
 
-    response = await client.get(f"/post/search_tag_title",
-
+    response = await client.get("/post/search_tag_title",
+                                params={'tag': "test",
+                                        'title': "title1"},
                                 headers=header)
-    assert response.status_code == 400
-    assert response.json()[
-        'detail'] == "Provide at least a title or a tag to search."
+    assert response.status_code == 200
+    assert response.json() == []

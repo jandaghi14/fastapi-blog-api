@@ -16,5 +16,3 @@ logger.setLevel(logging.INFO)
 if not logger.handlers:  # prevent duplicate handlers on reimport
     logger.addHandler(handler)
     logger.addHandler(handler_file)
-
-logger.info("="*30)

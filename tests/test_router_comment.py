@@ -1,4 +1,3 @@
-import uuid
 from httpx import AsyncClient
 
 
@@ -16,7 +15,10 @@ async def test_create_comment_success(client: AsyncClient, auth_header, create_p
     assert response.json()['post_id'] == post.json()['id']
 
 
-async def test_create_comment_success_on_another_user_post(client: AsyncClient, auth_header, create_post, create_comment):
+async def test_create_comment_success_on_another_user_post(client: AsyncClient,
+                                                           auth_header,
+                                                           create_post,
+                                                           create_comment):
     header = await auth_header()
     post = await create_post(header=header)
     await create_comment(post_id=post.json()['id'], header=header)
@@ -115,12 +117,12 @@ async def test_update_success(client: AsyncClient, auth_header, create_post, cre
                                     "is_published": False
     }, headers=header)
     assert response.status_code == 200
-    assert response.json() == True
+    assert response.json() is True
 
 
 async def test_update_not_found_comment(client: AsyncClient, auth_header, create_post, create_comment):
     header = await auth_header()
-    post = await create_post(header=header)
+    await create_post(header=header)
 
     response = await client.put(f'/comment/update/{99999}',
                                 json={
@@ -170,7 +172,7 @@ async def test_delete_success(client: AsyncClient, auth_header, create_post, cre
 
 async def test_delete_not_found_comment(client: AsyncClient, auth_header, create_post, create_comment):
     header = await auth_header()
-    post = await create_post(header=header)
+    await create_post(header=header)
 
     response = await client.delete(f'/comment/delete/{99999}',
                                    headers=header)
