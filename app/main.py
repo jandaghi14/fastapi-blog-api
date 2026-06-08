@@ -63,3 +63,4 @@ async def log_requests(request: Request, call_next):
 
     logger.info(f"{request.method} {request.url.path} --- {process_time:.4f}s")
     return response
+c = 1+1
