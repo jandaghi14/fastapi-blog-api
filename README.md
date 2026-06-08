@@ -136,12 +136,12 @@ This separation means database logic is never in routers, and HTTP logic never l
 - **Role-based access**: `user` and `admin` roles; admins can update or delete any post
 - **Posts**: Create, read, update, delete with ownership enforcement
 - **Pagination**: All posts endpoint returns `total`, `page`, `pages`, `size`, and `items`
-- **Search**: Filter posts by `title` (ILIKE) and/or `is_published`
+- **Search**: Filter posts by `title` (ILIKE) and/or `is_published`. Basic search filters within published status; advanced search crosses title and tag names with OR logic.
 - **Tag + title search**: OR logic across post titles and tag names using a LEFT OUTER JOIN with `.distinct()` to avoid duplicates
 - **Comments**: Full CRUD, scoped to post existence and comment ownership
 - **Tags**: Create, read, update, delete; many-to-many assignment to posts
 - **Logging**: Every request logged with method, path, and response time; post creation logged at service and repository level
-- **CORS**: Open (`*`) for development
+- **CORS**: Open (`*`) for development.In production this should be restricted to specific origins
 - **Global exception handlers**: Custom `NotFoundException`, `UnauthorizedException`, `AlreadyExistsException` map to clean JSON error responses
 
 ---
